@@ -96,5 +96,11 @@ dashboardSidebar(
 #--------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------
 dashboardBody(
+  tags$head(
+    #this links the shiny app to main.css which can be used to easily define and 
+    #alter styles(color,font size, alignments) across allui/server elements
+    tags$link(rel = "stylesheet", type = "text/css", href = "CSS/main.css"))
+  
+  
 ) # end dashboardBody
 ) # end dashboardPage
