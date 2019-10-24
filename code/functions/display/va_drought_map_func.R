@@ -35,5 +35,6 @@ va_drought_map_func <- function(){
   #concatinate all relevant parts into a retrievable url
   map_url_full = as.character(paste0(map_url_head,"imageMapFile", map_url_id,".png"))
   
+  close(test)
   return(map_url_full)
 }

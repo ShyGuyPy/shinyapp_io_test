@@ -45,7 +45,7 @@
 #   - e.g. 1638500, por, Potomac River at Point of Rocks
 gages <- data.table::fread(paste(parameters_path, "gages.csv", sep = ""),
                            col.names = c("id", "location", "description"),
-                           data.table = FALSE)
+                                         data.table = FALSE)
 list_gage_locations <- c("date", gages$location)
 
 # Read daily flow data --------------------------------------------------------
@@ -74,7 +74,7 @@ data_last_date <- tail(flows.daily.mgd.df$date_time, 1)
 data_last <- tail(flows.daily.mgd.df[, 2:32], 1)
 current_year <- year(data_last_date)
 year_final_date <- as.Date(paste(as.character(current_year),
-                                 "-12-31", sep = ""))
+                                    "-12-31", sep = ""))
 days_left_in_year <- as.numeric(year_final_date 
                                 - data_last_date)
 next_date <- data_last_date
@@ -113,7 +113,7 @@ demands.hourly.df <- demands.hourly.df %>%
                 d_wa = wa_gf + wa_lf,
                 d_fw_e = 70, d_fw_c = 20,
                 d_total = d_fw_w + d_fw_e + d_fw_c + d_wssc + d_lw + d_wa
-  ) %>%
+                ) %>%
   dplyr::select(-wa_gf, -wa_lf)
 
 # Compute daily demands -------------------------------------------------------
@@ -149,8 +149,8 @@ year_first_date <- paste(as.character(current_year), "-01-01", sep = "")
 year_first_date <- as.Date(year_first_date)
 data_first_date <- as.Date(data_first_date)
 days_prior_in_year <- as.numeric(difftime(data_first_date,
-                                          year_first_date, 
-                                          units = "days"))
+                                    year_first_date, 
+                                    units = "days"))
 prior_date <- data_first_date
 for(i in 1:days_prior_in_year) {
   prior_date <- prior_date - days(1)
@@ -195,7 +195,7 @@ state.drought.df <- data.table::fread(paste(ts_path, "state_drought_status.csv",
                 gw_md_cent, p_md_cent, sw_md_cent, r_md_cent,
                 gw_md_west, p_md_west, sw_md_west, r_md_west,
                 region_md_cent, region_md_west
-  ) %>%
+                ) %>%
   dplyr:: filter(date_time <= date_end,
                  date_time >= date_start)
 #------------------------------------------------------------------------------
@@ -208,26 +208,51 @@ state.drought.df <- data.table::fread(paste(ts_path, "state_drought_status.csv",
 # print("date_today0")
 # print(date_today0)
 sen.ts.df00 <- data.table::fread(paste(ts_path, "drex2018_output_sen.csv", sep = ""),
-                                 data.table = FALSE) %>%
+                                data.table = FALSE) %>%
   dplyr::mutate(date_time = as.Date(date_time)) %>%
   dplyr:: filter(date_time <= date_end,
                  date_time >= date_start)
 jrr.ts.df00 <- data.table::fread(paste(ts_path, "drex2018_output_jrr.csv", sep = ""),
-                                 data.table = FALSE) %>%
+                                data.table = FALSE) %>%
   dplyr::mutate(date_time = as.Date(date_time)) %>%
   dplyr:: filter(date_time <= date_end,
                  date_time >= date_start)
 occ.ts.df00 <- data.table::fread(paste(ts_path, "drex2018_output_occ.csv", sep = ""),
-                                 data.table = FALSE) %>%
+                                data.table = FALSE) %>%
   dplyr::mutate(date_time = as.Date(date_time)) %>%
   dplyr:: filter(date_time <= date_end,
                  date_time >= date_start)
 pat.ts.df00 <- data.table::fread(paste(ts_path, "drex2018_output_pat.csv", sep = ""),
-                                 data.table = FALSE) %>%
+                                data.table = FALSE) %>%
   dplyr::mutate(date_time = as.Date(date_time)) %>%
   dplyr:: filter(date_time <= date_end,
                  date_time >= date_start)
 
+#----------------------------------------shapefile load----------------------------------
+# read map shapefiles in ---------------------
+clipcentral = readOGR(dsn=map_path, layer = "clipcentral")
+western_dslv = readOGR(dsn=map_path, layer = "western_dslv")
+
+#transform map shapefiles  ---------------------
+clipcentral_t <- spTransform(clipcentral, CRS("+init=epsg:4326"))
+western_region_t <- spTransform(western_dslv, CRS("+init=epsg:4326"))
+#----------------------------------------------------------------------------------------
+
+
+#----------------------drought maps updating---------------------------------------------
+#calls function to get the latest version of the maryland drought map
+md_drought_map = md_drought_map_func(date_today0)
+
+#calls function to get the latest version of the virginia drought map
+#---toggle
+##for day to day
+# va_drought_map = va_drought_map_func()
+
+##to publish
+# project.dir <- rprojroot::find_rstudio_root_file()
+# va_drought_map = file.path(project.dir,'/global/images/va_drought_placeholder.png')
+#---
+#----------------------------------------------------------------------------------------
 
 
 # #------------------------------
@@ -239,3 +264,4 @@ pat.ts.df00 <- data.table::fread(paste(ts_path, "drex2018_output_pat.csv", sep =
 # if(url.exists("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv" == TRUE))
 # {demands_raw.df <- data.table::fread("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
 #                                      data.table = FALSE)}
+                                        

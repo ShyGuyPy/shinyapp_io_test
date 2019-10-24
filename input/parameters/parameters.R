@@ -22,7 +22,9 @@
 # date_today0 <- as.Date("1930-05-01")
 date_start <- as.Date("2019-01-01")
 date_end <- as.Date("2019-12-31")
-date_today0 <- as.Date(today())
+
+
+#date_today0 <- as.Date(today())
 
 # Conversion factors ------------------------------------------------
 mgd_to_cfs <- 1.547
@@ -145,7 +147,7 @@ occ_stor_emerg <- 1000 # emergency storage, below which there are no load-shifts
 #
 # uosa discharge in 2039, to be added to occ inflows in import_data.R
 uosa_discharge <- c(36.3, 40.9, 42.5, 38.0, 39.5, 37.8,
-                    36.2, 36.4, 35.2, 36.7, 37.0, 39.1)
+                36.2, 36.4, 35.2, 36.7, 37.0, 39.1)
 uosa.out.df <- data.frame(month_sim, uosa_discharge)
 #
 # Reduction of Occoquan inflows because of Lake Manassas
@@ -155,7 +157,7 @@ lake_manassas_reduction <- 14
 #
 # uosa incremental discharge above 2000 value in 2039:
 uosa_incr <- c(14.4, 16.2, 16.8, 15.0, 15.7, 15.0,
-               14.3, 14.4, 13.9, 14.5, 14.7, 15.5)
+                      14.3, 14.4, 13.9, 14.5, 14.7, 15.5)
 # For Occoquan I'm skipping the middle RC
 stor1 <- c(1000, 1000, 1000, 1000, 1000, 1000,
            1000, 1000, 1000, 1000, 1000, 1000)
