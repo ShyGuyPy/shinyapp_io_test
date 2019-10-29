@@ -29,7 +29,7 @@ output$boxes2  <- renderUI({
   flows.today <- last(ts$flows)
   dQ_va <- flows.today$dQ_va[1]
   
-  #this is html in a format taht shiny will accept.  This along with main.css structures the 
+  #this is html in a format that shiny will accept.  This along with main.css structures the 
   #properties of the Virginia Drought Status section
   div(class="topbox_main", p(class= "title", "VIRGINIA DROUGHT STATUS"),
       div(class="topbox1", 
@@ -145,6 +145,20 @@ output$boxes2  <- renderUI({
       )
   )#end of topbox_main
 })
+
+# #image for placeholder va drought------
+# output$placeholder <- renderImage({
+#   # When input$n is 1, filename is ./images/image1.jpeg
+#   filename <- normalizePath(file.path('./images',
+#                                       paste('va_drought_placeholder', '.png', sep='')))
+#   
+#   # Return a list containing the filename
+#   list(src = filename,
+#   width=400,
+#   height=400)
+# }, deleteFile = FALSE)
+
+
 
 #------------------------------------------------------------------
 #code for outputting colors based on values in data(data and log are toy)

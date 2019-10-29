@@ -99,22 +99,27 @@ tabPanel("Situational Awareness",
             htmlOutput(outputId = "boxes")
           )
         ),
-        #tags$p("Western region: Drought Watch; Central region: Drought Warning")),
+      
         box(
           title = NULL,#"VIRGINIA DROUGHT STATUS",
           width = NULL,#6,
           height = 220,
-          
+
           box(
-            tags$img(alt="Drought Status Map:2019-05-31",
-                     src= va_drought_map,#"https://deq1.bse.vt.edu/drought/state/images/maps/imageMapFile15627929031512.png",
+            # plotOutput("placeholder"),
+
+            
+            tags$img(#alt="/code/global/images/va_drought_placeholder.png",#"Drought Status Map:2019-05-31",
+                     src= "/code/global/images/va_drought_placeholder.png",
+                       #"file:///C:/Users/icprbadmin/Documents/R_Scripts/shinyapp_io_test/code/global/images/va_drought_placeholder.png"),#va_drought_map,#"https://deq1.bse.vt.edu/drought/state/images/maps/imageMapFile15627929031512.png",
                      style="width:200px;height:150px;border:0;")
           ),
-          
-          
+
+
           htmlOutput(outputId = "boxes2")
         )
-        #"NoVa: Drought Watch; Shenandoah: Drought Emergency")
+        
+
       ) # end of 2nd main column
     ) # end of major column that contains whole body
   ), # end of major row that contains whole body
