@@ -246,7 +246,7 @@ md_drought_map = md_drought_map_func(date_today0)
 #calls function to get the latest version of the virginia drought map
 #---toggle
 ##for day to day
-# va_drought_map = va_drought_map_func()
+va_drought_map = va_drought_map_func()
 
 ##to publish
 # project.dir <- rprojroot::find_rstudio_root_file()
@@ -260,8 +260,13 @@ md_drought_map = md_drought_map_func(date_today0)
 # ten_day.df <- data.table::fread(file.path(ts_path, "ten_day_test/ten_day_test.csv", sep=""),data.table = FALSE)
 # 
 # #------------------------------
-# #load in data for demands from Sarah's Drupal site (if site is up, otherwise do nothing)
+#load in data for demands from Sarah's Drupal site (if site is up, otherwise do nothing)
 # if(url.exists("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv" == TRUE))
 # {demands_raw.df <- data.table::fread("https://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
 #                                      data.table = FALSE)}
+# 
+# demands_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+#                                     data.table = FALSE)
+
+#-------------------------------------
                                         

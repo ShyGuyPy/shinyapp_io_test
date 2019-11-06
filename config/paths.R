@@ -24,3 +24,4 @@ ts_path <- "input/ts/current/"
 parameters_path <- "input/parameters/"
 ts_output <- "output/" # path of output directory
 map_path <- "data/Drought_Regions" #MD shapefiles
+

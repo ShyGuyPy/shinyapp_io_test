@@ -110,7 +110,7 @@ tabPanel("Situational Awareness",
 
             
             tags$img(alt="/code/global/images/va_drought_placeholder.png",#"Drought Status Map:2019-05-31",
-                     src= "https://vawatercentralnewsgrouper.files.wordpress.com/2018/02/drought-va-jan31.jpg",
+                     src= va_drought_map,#"https://vawatercentralnewsgrouper.files.wordpress.com/2018/02/drought-va-jan31.jpg",
                        #"https://upload.wikimedia.org/wikipedia/commons/4/42/Love_Heart_SVG.svg",
                        #"C:/Users/icprbadmin/Documents/R_Scripts/shinyapp_io_test/code/global/images/test_bulb.png",
                        #"file:///C:/Users/icprbadmin/Documents/R_Scripts/shinyapp_io_test/code/global/images/va_drought_placeholder.png"),#va_drought_map,#"https://deq1.bse.vt.edu/drought/state/images/maps/imageMapFile15627929031512.png",
