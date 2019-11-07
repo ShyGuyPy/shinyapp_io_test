@@ -33,11 +33,10 @@ observeEvent(input$view_data, {
 })
 
 observeEvent(input$accept_data, {
-})
+
 #read file
 demands.df <- data.table::fread(paste(ts_output, "download_data_temp.csv"),
                                 data.table = FALSE)
 #write dataframe to file
 write.csv(demands.df, paste(ts_output, "download_data.csv"))
-
-# save to ts_path
+})
