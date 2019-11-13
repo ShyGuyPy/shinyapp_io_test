@@ -108,7 +108,7 @@ dashboardBody(
              source("code/ui/ten_day_ops_ui.R", local = TRUE)$value,
              source("code/ui/long_term_operations.R", local = TRUE)$value,
              source("code/ui/demands.R", local = TRUE)$value,
-             source("code/ui/download_flows_withdrawals.R", local = TRUE)$value
+             source("code/ui/download_data_ui.R", local = TRUE)$value
              
   )
   

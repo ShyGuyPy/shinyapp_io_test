@@ -26,7 +26,7 @@ shinyServer(function(input, output, session) {
   
   #download flows/withdrawals tab
   
-  source("code/server/download_flows_withdrawals_server.R", local=TRUE)
+  source("code/server/download_data_server.R", local=TRUE)
   
   }) # end shinyServer
 
