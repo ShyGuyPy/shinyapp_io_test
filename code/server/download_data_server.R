@@ -5,11 +5,6 @@
 
 observeEvent(input$download_data_w, {
   
-  # gages <- data.table::fread(paste(parameters_path, "gages.csv", sep = ""),
-  #                            col.names = c("id", "location", "description"),
-  #                            data.table = FALSE)
-  # list_gage_locations <- c("date", gages$location)
-  
   #import the data from sarah's site
   withProgress(message = "downloading withdawals data", value = 0, {
     #increment progress bar
