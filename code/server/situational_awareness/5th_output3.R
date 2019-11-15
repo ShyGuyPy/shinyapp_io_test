@@ -1,4 +1,7 @@
-
+#title output
+output$VA_title <- renderUI({
+  div(p(class= "title","VIRGINIA DROUGHT STATUS"))
+})
 #NoVa warning status squares
 output$boxes2  <- renderUI({
   #this code finds the last value in ts and outputs a number value between 0-3 that 
