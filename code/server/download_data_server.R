@@ -3,69 +3,123 @@
 
 #---------------------------------------download data from withdrawal_data----------------------------------------------------------
 
+###download the data
 observeEvent(input$download_data_w, {
   
   #import the withdrawal data from sarah's site
   withProgress(message = "downloading withdawals data", value = 0, {
     #increment progress bar
     incProgress(1/2)
-  withdrawals_raw.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
-                                      header = TRUE, data.table = FALSE) #, colClasses = list_gage_locations)
-  #increment progress bar
-  incProgress(1/2)
+  withdrawals.df <- data.table::fread("http://icprbcoop.org/drupal4/products/coop_pot_withdrawals.csv",
+                                      header = TRUE,
+                                      na.strings = c("eqp", "Ice", "Bkw", "", "#N/A", -999999),
+                                      data.table = FALSE) #, colClasses = list_gage_locations)
   
+  #holds the values in wide format and addes dummy rows for formatting purposes
+  # withdrawals_actual.df <-  withdrawals.df %>%
+  #   add_row(DateTime = rep("dummy-row", 10), .before=1)
+  
+  #writes wide/formatted data
+  write.csv(withdrawals_actual.df, paste0(ts_path, "download_data_w_actual.csv"))
+  
+  withdrawals.df <- withdrawals.df %>%
+    select(-V1)
+  
+  #gather the data into long format for plotting
+  withdrawals.df <- gather(withdrawals.df,site, flow, 2:6)
 
-})
-  
-  #gather the data into long format
-  withdrawals.df <- gather(withdrawals_raw.df,site, flow, 2:6)
+  #select only essential(prevents duplicate numbering v1 column)
+  withdrawals.df <- withdrawals.df %>%
+    select(c(DateTime, site, flow))
   
   # #turn dates to date_time type
   # withdrawals.df$DateTime <- as_datetime(as.character(withdrawals.df$DateTime))
   
   #write dataframe to file
-  write.csv(withdrawals.df, paste(ts_path, "download_data_w_temp.csv"))
+  write.csv(withdrawals.df, paste0(ts_path, "download_data_w_temp.csv"))
+  
+  #increment progress bar
+  incProgress(1/2)
+}) #end of withProgress
 })
 
+###plot the data
 observeEvent(input$view_data_w, {
   
   #read file
-  withdrawals.df <- data.table::fread(paste(ts_path, "download_data_w_temp.csv"),
+  withdrawals.df <- data.table::fread(paste0(ts_path, "download_data_w_temp.csv"),
+                                      header = TRUE,
                                   data.table = FALSE)
   
+  #select only essential(prevents duplicate numbering v1 column)
+  withdrawals.df <- withdrawals.df %>%
+    select(c(DateTime, site, flow))
+  
+  #gather the data into long format
+  withdrawals_gathered.df <- gather(withdrawals.df,site, flow, 2:6)
+  
   #if older data exist in directory
-  if(file.exists(paste(ts_path, "download_data_w_old.csv"))){
+  if(file.exists(paste0(ts_path, "download_data_w_old.csv"))){
     #grab old withdrawal data from app
-    withdrawals_old.df <- data.table::fread(paste(ts_path, "download_data_w_old.csv"),
+    withdrawals_old.df <- data.table::fread(paste0(ts_path, "download_data_w_old.csv"),
+                                            header = TRUE,
                                         data.table = FALSE)
+    
+    withdrawals_old.df <- withdrawals_old.df %>%
+      select(-V1)
+    
+    #gather the old data into long format
+    withdrawals_old.df <- gather(withdrawals_old.df,site, flow, 2:6)
+    
+    #select only essential(prevents duplicate numbering v1 column)
+    withdrawals_old.df <- withdrawals_old.df %>%
+      select(c(DateTime, site, flow))
+    
+    #change site names to be unique from new data (e.g 'lfalls' becomes 'lfalls_old')
+    withdrawals_old.df <- withdrawals_old.df %>%
+      mutate( site =  paste0(site, "_old"))
     
     #turn dates to date_time type
     withdrawals_old.df$DateTime <- as_datetime(as.character(withdrawals_old.df$DateTime))
-  }
+    
+
+    
+  } 
   
-  #turn dates to date_time type
+  #change DateTime column format to as_datetime
   withdrawals.df$DateTime <- as_datetime(as.character(withdrawals.df$DateTime))
   
-  #plot the data
-  #button interaction needs to be conditional on data being readable in directory
-  output$withdrawal_plot <- renderPlot({ ggplot(withdrawals.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+  if(file.exists(paste0(ts_path, "download_data_w_old.csv"))){
     
-  })
+    withdrawals_new_and_old.df <- full_join(withdrawals_gathered.df, withdrawals_old_gathered.df)#, by = c(DateTime, site, flow))
+    
+    output$withdrawal_plot <- renderPlot({ggplot(withdrawals_new_and_old.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site)) 
+    })
+  } else {
+    output$withdrawal_plot <- renderPlot({ggplot(withdrawals.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+    })
+  }  
+  
 })
 
+
+###save the data
 observeEvent(input$accept_data_w, {
   
   #read old data file
-  withdrawals.df <- data.table::fread(paste(ts_path, "coop_pot_withdrawals.csv"),
+  withdrawals.df <- data.table::fread(paste0(ts_path, "coop_pot_withdrawals.csv"),
                                   data.table = FALSE)
   #write old dataframe to old dataframe location 
-  write.csv(withdrawals.df, paste(ts_path, "download_data_w_old.csv"))
+  write.csv(withdrawals.df, paste0(ts_path, "download_data_w_old.csv"))
   
-  #read temp file
-  withdrawals.df <- data.table::fread(paste(ts_path, "download_data_w_temp.csv"),
+  #read temp file(grabbing the data that has added dummy rows and is still in wide format)
+  withdrawals.df <- data.table::fread(paste0(ts_path, "download_data_w_actual.csv"),
                                   data.table = FALSE)
   #overwrite dataframe to latest(active) data position
-  write.csv(withdrawals.df, paste(ts_path, "coop_pot_withdrawals.csv"))
+  write.csv(withdrawals.df, paste0(ts_path, "coop_pot_withdrawals.csv"))
+  
+  #reload import_data
+  source("code/global/import_data.R", local = TRUE)#
 })
 
 #------------------------------------------------------------------------------------------------------------------------------------
@@ -90,6 +144,7 @@ observeEvent(input$accept_data_w, {
 
 #----------------------------------------------download data from flows daily------------------------------------------------------
 
+###download the data
 observeEvent(input$download_data_fd, {
   #creates a progess bar for data download
   withProgress(message = "downloading flows daily data", value = 0, {
@@ -107,18 +162,34 @@ observeEvent(input$download_data_fd, {
   full_daily_url = paste0("https://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", daily_start,"&enddate=" ,daily_end, "&format=daily&submit=Submit")
   
   #import the data from sarah's site
-  flows_daily_raw.df <- data.table::fread(full_daily_url, header = TRUE,
+  flows_daily.df <- data.table::fread(full_daily_url, header = TRUE,
                                       data.table = FALSE,   colClasses = c("character", rep("numeric", 31)), # force cols 2-32 numeric
+                                      na.strings = c("eqp", "Ice", "Bkw", "", "#N/A", -999999),
                                       col.names = list_gage_locations)
   
-  #gather the data into long format
-  flows_daily.df <- gather(flows_daily_raw.df,site, flow, 2:32)
+  #holds the values in wide format and addes dummy rows for formatting purposes
+  # flows_daily_actual.df <-  flows_daily.df %>%
+  #   add_row(DateTime = rep("dummy-row", 10), .before=1)
+  
+  #writes wide/formatted data
+  write.csv(flows_daily_actual.df, paste0(ts_path, "download_data_fd_actual.csv"))
+  
+  
+  flows_daily.df <- flows_daily.df %>%
+    select(-V1)
+  
+  #gather the data into long format for plotting
+  flows_daily.df <- gather(flows_daily.df,site, flow, 2:6)
+  
+  #select only essential(prevents duplicate numbering v1 column)
+  flows_daily.df <- flows_daily.df %>%
+    select(c(DateTime, site, flow))
   
   # #turn dates to date_time type
   # flows_daily.df$DateTime <- as_datetime(as.character(flows_daily.df$DateTime))
   
   #write dataframe to file
-  write.csv(flows_daily.df, paste(ts_path, "download_data_fd_temp.csv"))
+  write.csv(flows_daily.df, paste0(ts_path, "download_data_fd_temp.csv"))
   
   #increment progress bar
   incProgress(1/2)
@@ -126,46 +197,81 @@ observeEvent(input$download_data_fd, {
   }) #end of withProgress
 })
 
+###plot the data
 observeEvent(input$view_data_fd, {
   
   #read file
-  flows_daily.df <- data.table::fread(paste(ts_path, "download_data_fd_temp.csv"),
+  flows_daily.df <- data.table::fread(paste0(ts_path, "download_data_fd_temp.csv"),
+                                      header = TRUE,
                                   data.table = FALSE)
+  
+  #select only essential(prevents duplicate numbering v1 column)
+  flows_daily.df <- flows_daily.df %>%
+    select(c(date, site, flow))
+  
+  #gather the data into long format
+  flows_daily_gathered.df <- gather(flows_daily.df,site, flow, 2:32)
 
   #if older data exist in directory
-  if(file.exists(paste(ts_path, "download_data_fd_old.csv"))){
+  if(file.exists(paste0(ts_path, "download_data_fd_old.csv"))){
     #grab old flows daily data from app
-    flows_daily_old.df <- data.table::fread(paste(ts_path, "download_data_fd_old.csv"),
+    flows_daily_old.df <- data.table::fread(paste0(ts_path, "download_data_fd_old.csv"),
+                                            header = TRUE,
                                             data.table = FALSE)
     
+    #select only essential(prevents duplicate numbering v1 column)
+    flows_daily_old.df <- flows_daily_old.df %>%
+      select(c(date, site, flow))
+  
     #turn dates to date_time type
-    flows_daily_old.df$DateTime <- as_datetime(as.character(flows_daily_old.df$DateTime))
+    flows_daily_old.df$date <- as_datetime(as.character(flows_daily_old.df$date))
+    
+    #gather the old data into long format
+    flows_daily_old_gathered.df <- gather(flows_daily_old.df,site, flow, 2:32)
   }
   
   # 
   #turn dates to date_time type
   flows_daily.df$date <- as_datetime(as.character(flows_daily.df$date))
   
+  #filter down to only 2 sites
+  flows_daily.df <-  flows_daily.df %>%
+    filter(site == "lfalls" | site == "por")
+  
   #plot the data
-  #button interaction needs to be conditional on data being readable in directory
-  output$flows_daily_plot <- renderPlot({ ggplot(flows_daily.df, aes(x = date, y = flow)) + geom_line(aes(linetype = site, colour = site))
+  # #button interaction needs to be conditional on data being readable in directory
+  # output$flows_daily_plot <- renderPlot({ ggplot(flows_daily.df, aes(x = date, y = flow)) + geom_line(aes(linetype = site, colour = site))
+    # })
+  
+  if(file.exists(paste0(ts_path, "download_data_fd_old.csv"))){
     
-  })
+    flows_daily_new_and_old.df <- full_join(flows_daily_gathered.df, flows_daily_old_gathered.df)#, by = c(DateTime, site, flow))
+    
+    output$withdrawal_plot <- renderPlot({ggplot(flows_daily_new_and_old.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site)) 
+    })
+  } else {
+    output$withdrawal_plot <- renderPlot({ggplot(flows_daily.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+    })
+  }
 })
 
+###save the data
 observeEvent(input$accept_data_fd, {
   
   #read old data file
-  flows_daily.df <- data.table::fread(paste(ts_path, "flows_daily_cfs.csv"),
+  flows_daily.df <- data.table::fread(paste0(ts_path, "flows_daily_cfs.csv"),
                                       data.table = FALSE)
   #write old dataframe to old dataframe location 
-  write.csv(flows_daily.df, paste(ts_path, "download_data_fd_old.csv"))
+  write.csv(flows_daily.df, paste0(ts_path, "download_data_fd_old.csv"))
   
   #read temp file
-  flows_daily.df <- data.table::fread(paste(ts_path, "download_data_fd_temp.csv"),
+  flows_daily.df <- data.table::fread(paste0(ts_path, "download_data_fd_actual.csv"),
                                   data.table = FALSE)
   #overwrite dataframe to latest(active) data position
-  write.csv(flows_daily.df, paste(ts_path, "flows_daily_cfs.csv"))#"download_data_fd.csv"))
+  write.csv(flows_daily.df, paste0(ts_path, "flows_daily_cfs.csv"))#"download_data_fd.csv"))
+  
+  #reload import_data
+  source("code/global/import_data.R", local = TRUE)#
 })
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -187,7 +293,7 @@ observeEvent(input$accept_data_fd, {
 
 
 #---------------------------------------------------download data flows hourly---------------------------------------------
-
+###download the data
 observeEvent(input$download_data_fh, {
   #creates a progess bar for data download
   withProgress(message = "downloading flows hourly data", value = 0, {
@@ -203,70 +309,126 @@ observeEvent(input$download_data_fh, {
   full_hourly_url = paste0("https://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", hourly_start,"&enddate=" ,hourly_end, "&format=hourly&submit=Submit")
   
   #import the hourly flows data from sarah's site
-  flows_hourly_raw.df <- data.table::fread(full_hourly_url, header = TRUE,
+  flows_hourly.df <- data.table::fread(full_hourly_url, header = TRUE,
                                       data.table = FALSE, colClasses = c("character", rep("numeric", 31)), # force cols 2-32 numeric
+                                      na.strings = c("eqp", "Ice", "Bkw", "", "#N/A", -999999),
                                       col.names = list_gage_locations)
   
-  #gather the data into long format
-  flows_hourly.df <- gather(flows_hourly_raw.df,site, flow, 2:32)
+  #holds the values in wide format and addes dummy rows for formatting purposes
+  # flows_hourly_actual.df <-  flows_hourly.df %>%
+  #   add_row(DateTime = rep("dummy-row", 10), .before=1)
+  
+  #writes wide/formatted data
+  write.csv(flows_hourly_actual.df, paste0(ts_path, "download_data_fh_actual.csv"))
+  
+  flows_hourly.df <- flows_hourly.df %>%
+    select(-V1)
+  
+  #gather the data into long format for plotting
+  flows_hourly.df <- gather(flows_hourly.df,site, flow, 2:6)
+  
+  #select only essential(prevents duplicate numbering v1 column)
+  flows_hourly.df <- flows_hourly.df %>%
+    select(c(date, site, flow))
   
   # #turn dates to date_time type
   # flows_hourly.df$DateTime <- as_datetime(as.character(flows_hourly.df$DateTime))
   
   #write dataframe to file
-  write.csv(flows_hourly.df, paste(ts_path, "download_data_fh_temp.csv"))
+  write.csv(flows_hourly.df, paste0(ts_path, "download_data_fh_temp.csv"))
+  
+
   
   #increment progress bar
   incProgress(1/2)
   }) #end of withProgress
 })
 
+###plot the data
 observeEvent(input$view_data_fh, {
   
   #read file
-  flows_hourly.df <- data.table::fread(paste(ts_path, "download_data_fh_temp.csv"),
+  flows_hourly.df <- data.table::fread(paste0(ts_path, "download_data_fh_temp.csv"),
+                                       header = TRUE,
                                   data.table = FALSE)
   
+  #select only essential(prevents duplicate numbering v1 column)
+  flows_hourly.df <- flows_hourly.df %>%
+    select(c(date, site, flow))
+  
+  #gather the data into long format
+  flows_hourly_gathered.df <- gather(flows_hourly.df,site, flow, 2:32)
+  
   #if older data exist in directory
-  if(file.exists(paste(ts_path, "download_data_fh_old.csv"))){
+  if(file.exists(paste0(ts_path, "download_data_fh_old.csv"))){
     #grab old flows hourly data from app
-    flows_hourly_old.df <- data.table::fread(paste(ts_path, "download_data_fh_old.csv"),
+    flows_hourly_old.df <- data.table::fread(paste0(ts_path, "download_data_fh_old.csv"),
+                                             header = TRUE,
                                             data.table = FALSE)
     
+    #select only essential(prevents duplicate numbering v1 column)
+    flows_hourly_old.df <- flows_hourly_old.df %>%
+      select(c(date, site, flow))
+    
+    #change site names to be unique from new data (e.g 'lfalls' becomes 'lfalls_old')
+    flows_hourly_old.df <- flows_hourly_old.df %>%
+      mutate( site =  paste0(site, "_old"))
+    
     #turn dates to date_time type
-    flows_hourly_old.df$DateTime <- as_datetime(as.character(flows_hourly_old.df$DateTime))
+    flows_hourly_old.df$date <- as_datetime(as.character(flows_hourly_old.df$date))
+    
+    #gather the data into long format
+    flows_hourly_gathered.df <- gather(flows_hourly.df,site, flow, 2:32)
   }
   
   #turn dates to date_time type
   flows_hourly.df$date <- as_datetime(as.character(flows_hourly.df$date))
   
-  
+  #filter down to only 2 sites
+  flows_hourly.df <-  flows_hourly.df %>%
+    filter(site  == "lfalls" | site == "por")
   
   #plot the data
   #button interaction needs to be conditional on data being readable in directory
-  output$flows_hourly_plot <- renderPlot({ ggplot(flows_hourly.df, aes(x = date, y = flow)) + geom_line(aes(linetype = site, colour = site))
+  # output$flows_hourly_plot <- renderPlot({ ggplot(flows_hourly.df, aes(x = date, y = flow)) + geom_line(aes(linetype = site, colour = site))
+  #})
+  
+  if(file.exists(paste0(ts_path, "download_data_w_old.csv"))){
     
+    flows_hourly_new_and_old.df <- full_join(flows_hourly.df, flows_hourly_old.df)#, by = c(DateTime, site, flow))
     
-  })
+    output$flows_hourly_plot <- renderPlot({ggplot(flows_hourly_new_and_old.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site)) 
+    })
+  } else {
+    output$flows_hourly_plot <- renderPlot({ggplot(flows_hourly.df, aes(x = DateTime, y = flow)) + geom_line(aes(linetype = site, colour = site))
+    })
+  }
 })
 
+###save the data
 observeEvent(input$accept_data_fh, {
   
   #read old data file
-  flows_hourly.df <- data.table::fread(paste(ts_path, "flows_hourly_cfs.csv"),
+  flows_hourly.df <- data.table::fread(paste0(ts_path, "flows_hourly_cfs.csv"),
                                       data.table = FALSE)
   #write old dataframe to old dataframe location 
-  write.csv(flows_hourly.df, paste(ts_path, "download_data_fh_old.csv"))
+  write.csv(flows_hourly.df, paste0(ts_path, "download_data_fh_old.csv"))
   
-  #read temp file
-  flows_hourly.df <- data.table::fread(paste(ts_path, "download_data_fh_temp.csv"),
-                                  data.table = FALSE)
+  #read temp file(grabbing the data that has added dummy rows and is still in wide format)
+  flows_hourly.df <- data.table::fread(paste0(ts_path, "download_data_fh_actual.csv"),
+                                      data.table = FALSE)
   
   ################# need code to append new data to old data
   ######requires a join to existing data
   
   #write dataframe to file
-  write.csv(flows_hourly.df, paste(ts_path, "flows_hourly_cfs.csv"))#"download_data_fh.csv"))
+  write.csv(flows_hourly.df, paste0(ts_path, "flows_hourly_cfs.csv"))#"download_data_fh.csv"))
+  
+  #reload import_data
+  source("code/global/import_data.R", local = TRUE)#
 })
 
 #--------------------------------------------------------------------------------------------------------------------------------
+
+
+
