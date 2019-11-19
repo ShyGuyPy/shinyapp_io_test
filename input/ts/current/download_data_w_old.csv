@@ -1,14 +1,4 @@
-"# Net Potomac Withdrawals Actual and Forecast"
-"# FW = Fairfax Water Corbalis Plant withdrawal from the Potomac"
-"# WSSC = Washington Subburban Sanitary Commission withdrawal from the Potomac"
-"# WA_GF = Washington Aqueduct withdrawal from Great Falls on the Potomac"
-"# WA_LF = Washington Aqueduct withdrawal from Little Falls on the Potomac"
-"# LW = Placeholder for Loudoun Water withdrawal from the Potomac"
-"# Start Date = 2019-10-20"
-"# Stop Date = 2019-12-03"
-"# Time Zone = Eastern Standard Ttime (EST)"
-"# Units = million gallons per day (mgd)"
-DateTime,FW,WSSC,WA_GF,WA_LF,LW
+"DateTime","FW","WSSC","WA_GF","WA_LF","LW"
 "2019-10-20 00:00:00",85.17,156.54,128.53,0,10.23
 "2019-10-20 01:00:00",85.17,156.54,128.53,0,10.23
 "2019-10-20 02:00:00",85.17,156.54,128.53,0,10.23
