@@ -397,7 +397,7 @@ observeEvent(input$view_data_fh, {
   # output$flows_hourly_plot <- renderPlot({ ggplot(flows_hourly.df, aes(x = date, y = flow)) + geom_line(aes(linetype = site, colour = site))
   #})
   
-  if(file.exists(paste0(ts_path, "download_data_w_old.csv"))){
+  if(file.exists(paste0(ts_path, "download_data_fh_old.csv"))){
     
     flows_hourly_new_and_old.df <- full_join(flows_hourly.df, flows_hourly_old.df)#, by = c(date, site, flow))
     
@@ -434,6 +434,13 @@ observeEvent(input$accept_data_fh, {
 })
 
 #--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
 
 
