@@ -161,7 +161,7 @@ observeEvent(input$download_data_fd, {
   
   daily_end = paste0(format(date_today0,"%m"),"%2F",format(date_today0,"%d"), "%2F",format(date_today0,"20%y"))
   
-  full_daily_url = paste0("https://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", daily_start,"&enddate=" ,daily_end, "&format=daily&submit=Submit")
+  full_daily_url = paste0("http://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", daily_start,"&enddate=" ,daily_end, "&format=daily&submit=Submit")
   
   #import the data from sarah's site
   flows_daily.df <- data.table::fread(full_daily_url, header = TRUE,
@@ -319,7 +319,7 @@ observeEvent(input$download_data_fh, {
   
   hourly_end = paste0(format(date_today0,"%m"),"%2F",format(date_today0,"%d"), "%2F",format(date_today0,"20%y"))
   
-  full_hourly_url = paste0("https://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", hourly_start,"&enddate=" ,hourly_end, "&format=hourly&submit=Submit")
+  full_hourly_url = paste0("http://icprbcoop.org/drupal4/icprb/flow-data?","startdate=", hourly_start,"&enddate=" ,hourly_end, "&format=hourly&submit=Submit")
   
   #import the hourly flows data from sarah's site
   flows_hourly.df <- data.table::fread(full_hourly_url, header = TRUE,
