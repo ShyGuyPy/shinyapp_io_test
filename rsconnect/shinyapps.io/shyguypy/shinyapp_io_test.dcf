@@ -5,8 +5,8 @@ account: shyguypy
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1344229
-bundleId: 2603527
+bundleId: 2603610
 url: https://shyguypy.shinyapps.io/shinyapp_io_test/
-when: 1574252247.70927
+when: 1574253914.04127
 asMultiple: FALSE
 asStatic: FALSE

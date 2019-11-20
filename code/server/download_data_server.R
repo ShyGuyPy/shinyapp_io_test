@@ -225,12 +225,20 @@ observeEvent(input$view_data_fd, {
     #gather the old data into long format
     flows_daily_old.df <- gather(flows_daily_old.df,site, flow, 2:32)
     
+    #change site names to be unique from new data (e.g 'lfalls' becomes 'lfalls_old')
+    flows_daily_old.df <- flows_daily_old.df %>%
+      mutate( site =  paste0(site, "_old"))
+    
     #select only essential(prevents duplicate numbering v1 column)
     flows_daily_old.df <- flows_daily_old.df %>%
       select(c(date, site, flow))
   
     #turn dates to date_time type
     flows_daily_old.df$date <- as_datetime(as.character(flows_daily_old.df$date))
+    
+    #filter down to only 2 sites
+    flows_daily_old.df <-  flows_daily_old.df %>%
+      filter(site == "lfalls" | site == "por")
     
   }
   
@@ -382,6 +390,10 @@ observeEvent(input$view_data_fh, {
     
     #turn dates to date_time type
     flows_hourly_old.df$date <- as_datetime(as.character(flows_hourly_old.df$date))
+    
+    #filter down to only 2 sites
+    flows_hourly_old.df <-  flows_hourly_old.df %>%
+      filter(site  == "lfalls" | site == "por")
     
   }
   

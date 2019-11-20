@@ -30,7 +30,6 @@ write.csv(flows_daily_old.df, paste0(ts_path, "download_data_fd_old.csv"), row.n
 
 
 
-
 #construct file path
 date_minus_five = (date_today0 - 10) - 5
 hourly_start = paste0(format(date_minus_five,"%m"),"%2F",format(date_minus_five,"%d"), "%2F",format(date_minus_five,"20%y"))
