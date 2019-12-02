@@ -16,11 +16,15 @@ observeEvent(input$download_data_w, {
                                       data.table = FALSE) #, colClasses = list_gage_locations)
   
   #holds the values in wide format and addes dummy rows for formatting purposes
-  withdrawals_actual.df <-  withdrawals.df #%>%
-  #   add_row(DateTime = rep("dummy-row", 10), .before=1)
+  withdrawals_actual.df <-  withdrawals.df %>%
+    # write the future header
+    add_row(DateTime = "DateTime", FW = "FW", WSSC = "WSSC",
+            WA_GF = "WA_GF", WA_LF = "WA_LF", LW = "LW", .before = 1) %>%
+    # write 10 dummy rows, to mimic file from the Data Portal
+    add_row(DateTime = rep("#dummy-row", 10), .before=1)
   
   #writes wide/formatted data
-  write.csv(withdrawals_actual.df, paste0(ts_path, "download_data_w_actual.csv"), row.names=FALSE)
+  write_csv(withdrawals_actual.df, paste0(ts_path, "download_data_w_actual.csv"),col_names = FALSE)
   
   #clear unneeded duplicate columns
   # withdrawals.df <- withdrawals.df %>%
@@ -37,7 +41,7 @@ observeEvent(input$download_data_w, {
   # withdrawals.df$DateTime <- as_datetime(as.character(withdrawals.df$DateTime))
   
   #write dataframe to file
-  write.csv(withdrawals.df, paste0(ts_path, "download_data_w_temp.csv"), row.names=FALSE)
+  write_csv(withdrawals.df, paste0(ts_path, "download_data_w_temp.csv"))
   
   #increment progress bar
   incProgress(1/2)
@@ -108,17 +112,17 @@ observeEvent(input$accept_data_w, {
   withdrawals.df <- data.table::fread(paste0(ts_path, "coop_pot_withdrawals.csv"),
                                   data.table = FALSE)
   #write old dataframe to old dataframe location 
-  write.csv(withdrawals.df, paste0(ts_path, "download_data_w_old.csv"), row.names=FALSE)
+  write_csv(withdrawals.df, paste0(ts_path, "download_data_w_old.csv"))
   
   #read temp file(grabbing the data that has added dummy rows and is still in wide format)
   withdrawals.df <- data.table::fread(paste0(ts_path, "download_data_w_actual.csv"),
                                   data.table = FALSE)
   #add dummyrows to match format
-  withdrawals.df <- withdrawals.df %>%
-  add_row(DateTime = rep("dummy-row", 10), .before=1)
+  # withdrawals.df <- withdrawals.df %>%
+  # add_row(DateTime = rep("dummy-row", 10), .before=1)
   
   #overwrite dataframe to latest(active) data position
-  write.csv(withdrawals.df, paste0(ts_path, "coop_pot_withdrawals_unformatted.csv"), row.names=FALSE)
+  write_csv(withdrawals.df, paste0(ts_path, "coop_pot_withdrawals_unformatted.csv"))
   
   #reload import_data
   source("code/global/import_data.R", local = TRUE)#
@@ -174,7 +178,7 @@ observeEvent(input$download_data_fd, {
   #   add_row(date = rep("dummy-row", 10), .before=1)
   
   #writes wide/formatted data
-  write.csv(flows_daily_actual.df, paste0(ts_path, "download_data_fd_actual.csv"), row.names=FALSE)
+  write_csv(flows_daily_actual.df, paste0(ts_path, "download_data_fd_actual.csv"))
   
   
   # flows_daily.df <- flows_daily.df %>%
@@ -191,7 +195,7 @@ observeEvent(input$download_data_fd, {
   # flows_daily.df$date <- as_datetime(as.character(flows_daily.df$date))
   
   #write dataframe to file
-  write.csv(flows_daily.df, paste0(ts_path, "download_data_fd_temp.csv"), row.names=FALSE)
+  write_csv(flows_daily.df, paste0(ts_path, "download_data_fd_temp.csv"))
   
   #increment progress bar
   incProgress(1/2)
@@ -275,13 +279,13 @@ observeEvent(input$accept_data_fd, {
   flows_daily.df <- data.table::fread(paste0(ts_path, "flows_daily_cfs.csv"),
                                       data.table = FALSE)
   #write old dataframe to old dataframe location 
-  write.csv(flows_daily.df, paste0(ts_path, "download_data_fd_old.csv"), row.names=FALSE)
+  write_csv(flows_daily.df, paste0(ts_path, "download_data_fd_old.csv"))
   
   #read temp file
   flows_daily.df <- data.table::fread(paste0(ts_path, "download_data_fd_actual.csv"),
                                   data.table = FALSE)
   #overwrite dataframe to latest(active) data position
-  write.csv(flows_daily.df, paste0(ts_path, "flows_daily_cfs_unformatted.csv"), row.names=FALSE)
+  write_csv(flows_daily.df, paste0(ts_path, "flows_daily_cfs_unformatted.csv"))
   
   #reload import_data
   source("code/global/import_data.R", local = TRUE)#
@@ -332,7 +336,7 @@ observeEvent(input$download_data_fh, {
   #   add_row(date = rep("dummy-row", 10), .before=1)
   
   #writes wide/formatted data
-  write.csv(flows_hourly_actual.df, paste0(ts_path, "download_data_fh_actual.csv"), row.names=FALSE)
+  write_csv(flows_hourly_actual.df, paste0(ts_path, "download_data_fh_actual.csv"))
   
   # flows_hourly.df <- flows_hourly.df %>%
   #   select(-V1)
@@ -348,7 +352,7 @@ observeEvent(input$download_data_fh, {
   # flows_hourly.df$date <- as_datetime(as.character(flows_hourly.df$date))
   
   #write dataframe to file
-  write.csv(flows_hourly.df, paste0(ts_path, "download_data_fh_temp.csv"), row.names=FALSE)
+  write_csv(flows_hourly.df, paste0(ts_path, "download_data_fh_temp.csv"))
   
 
   
@@ -429,7 +433,7 @@ observeEvent(input$accept_data_fh, {
   flows_hourly.df <- data.table::fread(paste0(ts_path, "flows_hourly_cfs.csv"),
                                       data.table = FALSE)
   #write old dataframe to old dataframe location 
-  write.csv(flows_hourly.df, paste0(ts_path, "download_data_fh_old.csv"), row.names=FALSE)
+  write_csv(flows_hourly.df, paste0(ts_path, "download_data_fh_old.csv"))
   
   #read temp file(grabbing the data that has added dummy rows and is still in wide format)
   flows_hourly.df <- data.table::fread(paste0(ts_path, "download_data_fh_actual.csv"),
@@ -439,7 +443,7 @@ observeEvent(input$accept_data_fh, {
   ######requires a join to existing data
   
   #write dataframe to file
-  write.csv(flows_hourly.df, paste0(ts_path, "flows_hourly_cfs_unformatted.csv"), row.names=FALSE)
+  write_csv(flows_hourly.df, paste0(ts_path, "flows_hourly_cfs_unformatted.csv"))
   
   #reload import_data
   source("code/global/import_data.R", local = TRUE)#
