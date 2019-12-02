@@ -112,7 +112,7 @@ observeEvent(input$accept_data_w, {
   withdrawals.df <- data.table::fread(paste0(ts_path, "coop_pot_withdrawals.csv"),
                                   data.table = FALSE)
   #write old dataframe to old dataframe location 
-  write_csv(withdrawals.df, paste0(ts_path, "download_data_w_old.csv"))
+  write_csv(withdrawals.df, paste0(ts_path, "download_data_w_old.csv"),col_names = FALSE)
   
   #read temp file(grabbing the data that has added dummy rows and is still in wide format)
   withdrawals.df <- data.table::fread(paste0(ts_path, "download_data_w_actual.csv"),
@@ -122,7 +122,7 @@ observeEvent(input$accept_data_w, {
   # add_row(DateTime = rep("dummy-row", 10), .before=1)
   
   #overwrite dataframe to latest(active) data position
-  write_csv(withdrawals.df, paste0(ts_path, "coop_pot_withdrawals_unformatted.csv"))
+  write_csv(withdrawals.df, paste0(ts_path, "coop_pot_withdrawals.csv"),col_names = FALSE)
   
   #reload import_data
   source("code/global/import_data.R", local = TRUE)#
@@ -277,13 +277,13 @@ observeEvent(input$accept_data_fd, {
   
   #read old data file
   flows_daily.df <- data.table::fread(paste0(ts_path, "flows_daily_cfs.csv"),
-                                      data.table = FALSE)
+                                      data.table = FALSE, header = TRUE)
   #write old dataframe to old dataframe location 
   write_csv(flows_daily.df, paste0(ts_path, "download_data_fd_old.csv"))
   
   #read temp file
   flows_daily.df <- data.table::fread(paste0(ts_path, "download_data_fd_actual.csv"),
-                                  data.table = FALSE)
+                                  data.table = FALSE, header = TRUE)
   #overwrite dataframe to latest(active) data position
   write_csv(flows_daily.df, paste0(ts_path, "flows_daily_cfs_unformatted.csv"))
   
@@ -431,13 +431,13 @@ observeEvent(input$accept_data_fh, {
   
   #read old data file
   flows_hourly.df <- data.table::fread(paste0(ts_path, "flows_hourly_cfs.csv"),
-                                      data.table = FALSE)
+                                      data.table = FALSE, header = TRUE)
   #write old dataframe to old dataframe location 
   write_csv(flows_hourly.df, paste0(ts_path, "download_data_fh_old.csv"))
   
   #read temp file(grabbing the data that has added dummy rows and is still in wide format)
   flows_hourly.df <- data.table::fread(paste0(ts_path, "download_data_fh_actual.csv"),
-                                      data.table = FALSE)
+                                      data.table = FALSE, header = TRUE)
   
   ################# need code to append new data to old data
   ######requires a join to existing data
